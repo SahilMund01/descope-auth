@@ -83,20 +83,14 @@ export async function authenticateUserSession(token) {
 export async function getTenantsDetails(tenantId, token) {
   try {
 
-    console.log(token)
-
-    const sessionToken = localStorage.getItem('sessionJwt');
-    console.log('sessionToken',sessionToken);
-    
-
     const config = {
       headers: {
-        "Authorization": `Bearer ${sessionToken}`
+        "Authorization": `Bearer ${token}`
       },
     };
     
-    // const response = await axios.get(`${API_BASE_URL}/auth/data?tenantId=${tenantId}`, config);
-    const response = await axios.get(`${API_BASE_URL}/data?tenantId=${tenantId}`);
+    const response = await axios.get(`${API_BASE_URL}/auth/data?tenantId=${tenantId}`, config);
+    // const response = await axios.get(`${API_BASE_URL}/data?tenantId=${tenantId}`);
     console.log(' getTenantsDetails response', response);
 
     if (response.status !== 200) {

@@ -75,27 +75,53 @@ const DescopeTest = () => {
 
 
 
-    const fetchUserDetails = useMemo(() => async (token) => {
-        if (!userDetails && token) {
+    const fetchUserDetails = async () => {
+        
             setIsLoading(true);
             try {
-                const data = await authenticateUserSession(code);
-                setUserDetails(data.user);
-                console.log('session data fetched');
                 
-                const tenantid = data?.user?.userTenants[0]?.tenantId;                
-                const tenantData = tenantid && await getTenantsDetails(tenantid, token);
-                console.log('tenant data fetched');
-
-                setHospitals(tenantData);
-                storeTokens(data.sessionJwt, data.refreshJwt);
+                if(icode){
+                    const data = await authenticateUserSession(icode);
+                    setUserDetails(data.user);
+                    console.log('session data fetched');
+                    
+                    const tenantid = data?.user?.userTenants[0]?.tenantId;                
+                    const tenantData = tenantid && await getTenantsDetails(tenantid, data?.sessionJwt);
+                    console.log('tenant data fetched');
+    
+                    setHospitals(tenantData);
+                    storeTokens(data.sessionJwt, data.refreshJwt);
+                }
+                
             } catch (error) {
                 console.error('Exchange error:', error);
             } finally {
                 setIsLoading(false);
             }
-        }
-    }, [userDetails, code]); // Added `code` dependency
+        
+    }; // Added `code` dependency
+
+    // const fetchUserDetails = useMemo(() => async (token) => {
+    //     if (!userDetails && token) {
+    //         setIsLoading(true);
+    //         try {
+    //             const data = await authenticateUserSession(code);
+    //             setUserDetails(data.user);
+    //             console.log('session data fetched');
+                
+    //             const tenantid = data?.user?.userTenants[0]?.tenantId;                
+    //             const tenantData = tenantid && await getTenantsDetails(tenantid, token);
+    //             console.log('tenant data fetched');
+
+    //             setHospitals(tenantData);
+    //             storeTokens(data.sessionJwt, data.refreshJwt);
+    //         } catch (error) {
+    //             console.error('Exchange error:', error);
+    //         } finally {
+    //             setIsLoading(false);
+    //         }
+    //     }
+    // }, [userDetails]); 
 
     // const fetchUserDetails = useMemo(() => async (token) => {
     //     if (!userDetails && token) {
@@ -124,18 +150,18 @@ const DescopeTest = () => {
     //     }
     // }, [userDetails, refreshToken]); // Re-run the memo only if userDetails or refreshToken changes
 
-    useEffect(() => {
-        const icode = searchParams.get('code');
-        if (icode) {
-            setCode(icode);
-        }
-    }, [searchParams]);
+    // useEffect(() => {
+    //     const icode = searchParams.get('code');
+    //     if (icode) {
+    //         setCode(icode);
+    //     }
+    // }, [searchParams]);
 
     useEffect(() => {
-        if (token) {
+       
             fetchUserDetails(token);
-        }
-    }, [token, fetchUserDetails]);
+        
+    }, []);
 
 
 
