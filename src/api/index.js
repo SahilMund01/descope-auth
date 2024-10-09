@@ -37,9 +37,12 @@ export async function handleSSOLogin(data) {
       }else if(tenant){
         apiUrl = `${API_BASE_URL}/auth/sso?tenantId=${tenant}&redirectUrl=${redirectUrl}`;
       }
+
+    console.log(apiUrl)
     const response = await axios.post(apiUrl, 
       requestData, axiosConfig);
     
+    console.log('resp', response);
     if (response.status !== 200) {
         throw new Error(`HTTP error! status: ${response.status}`);
     }
@@ -87,7 +90,8 @@ export async function getTenantsDetails(tenantId, token) {
       },
     };
     
-    const response = await axios.get(`${API_BASE_URL}/auth/data?tenantId=${tenantId}`, config);
+    // const response = await axios.get(`${API_BASE_URL}/auth/data?tenantId=${tenantId}`, config);
+    const response = await axios.get(`${API_BASE_URL}/data?tenantId=${tenantId}`);
     console.log('response', response);
 
     if (response.status !== 200) {

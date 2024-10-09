@@ -81,7 +81,7 @@ function SignIn() {
     try {
       const redirectUrl = formData.redirectUrl || 'http://localhost:5000/descope-test';
       const encodedRedirectUrl = encodeURIComponent(redirectUrl);
-      const email = encodeURIComponent(formData.email); // Using email as tenant ID
+      const email = formData.email; // Using email as tenant ID
       const tenant = formData.tenantId; // Using email as tenant ID
       
 
