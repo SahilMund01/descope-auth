@@ -9,6 +9,8 @@ const axiosConfig = {
   },
 };
 
+
+
 export async function handleSSOLogin(data) {
   const {email, tenant, redirectUrl} = data;
   try {
@@ -86,8 +88,9 @@ export async function getTenantsDetails(tenantId) {
     return response.data;
     
   } catch (error) {
-    console.error('authenticateUserSession Error..',error);
-    return error;
+    console.error('getTenantsDetails Error..',error);
+    
+    return error?.response?.status === 500 && [];
   }
   
 }

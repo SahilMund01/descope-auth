@@ -5,6 +5,7 @@ import { Typography, Card, CardContent, CircularProgress } from '@mui/material';
 import { jwtDecode } from 'jwt-decode';
 import { Hospital } from 'lucide-react';
 import { authenticateUserSession, getTenantsDetails } from './api';
+import axios from 'axios';
 
 const DescopeTest = () => {
 
@@ -12,14 +13,7 @@ const DescopeTest = () => {
     const [isLoading, setIsLoading] = useState(false);
     const [token, setToken] = useState(localStorage.getItem('sessionJwt'));
     const [refreshToken, setRefreshToken] = useState(localStorage.getItem('refreshJwt'));
-    const [hospitals, setHospitals] = useState([
-        {
-            "tenantId": "T2mnVC9sInlAaLEejsYJqs6xNGdH",
-            "hospitalName": "test migration 2",
-            "adminName": "adarsh",
-            "adminEmailId": "adarsh.gaur@techolution.com"
-        }
-    ]);
+    const [hospitals, setHospitals] = useState([]);
 
     const [searchParams] = useSearchParams();
     const code = searchParams.get('code');
@@ -29,6 +23,8 @@ const DescopeTest = () => {
     const storeTokens = (sessionJwt, refreshJwt) => {
         localStorage.setItem('sessionJwt', sessionJwt);
         localStorage.setItem('refreshJwt', refreshJwt);
+        setToken(sessionJwt);
+        setRefreshToken(refreshJwt);
     };
 
     const [anchorEl, setAnchorEl] = useState(null);
@@ -62,6 +58,20 @@ const DescopeTest = () => {
         setAnchorEl(null);
     };
 
+    const refreshSessionToken = async (refreshJwt) => {
+        try {
+            const response = await axios.post('https://proj-qsight.techo.camp/api/auth/session/refresh', {
+                refreshToken: refreshJwt,
+            });
+            const { sessionJwt, refreshJwt: newRefreshJwt } = response.data;
+            storeTokens(sessionJwt, newRefreshJwt);
+            return sessionJwt;
+        } catch (error) {
+            console.error('Error refreshing session token', error);
+            onLogout(); // Log the user out if the refresh token fails
+        }
+    };
+
 
     // Set the token when the component mounts
     useEffect(() => {
@@ -71,23 +81,50 @@ const DescopeTest = () => {
     }, [code]);
 
 
+    // const fetchUserDetails = useMemo(() => async (token) => {
+    //     if (!userDetails) {
+    //         setIsLoading(true);
+    //         try {
+    //             const data = await authenticateUserSession(token);
+    //             setUserDetails(data.user);
+    //             const tenantid = data?.user?.userTenants[0]?.tenantId;                
+    //             const tenenatData = tenantid && await getTenantsDetails(tenantid);
+    //             setHospitals(tenenatData);
+    //             storeTokens(data.sessionJwt, data.refreshJwt);
+    //         } catch (error) {
+    //             console.error('Exchange error:', error);
+    //         } finally {
+    //             setIsLoading(false);
+    //         }
+    //     }
+    // }, [userDetails]); // Re-run the memo only if userDetails changes
+
     const fetchUserDetails = useMemo(() => async (token) => {
         if (!userDetails) {
             setIsLoading(true);
             try {
                 const data = await authenticateUserSession(token);
                 setUserDetails(data.user);
-                const tenantid = data?.user?.userTenants[0]?.tenantId;                
-                const tenenatData = tenantid && await getTenantsDetails(tenantid);
-                setHospitals(tenenatData);
+                const tenantid = data?.user?.userTenants[0]?.tenantId;
+                const tenantData = tenantid && await getTenantsDetails(tenantid);
+                setHospitals(tenantData);
                 storeTokens(data.sessionJwt, data.refreshJwt);
             } catch (error) {
-                console.error('Exchange error:', error);
+                if (error.response?.status === 401 && refreshToken) {
+                    // Token expired, attempt to refresh it
+                    const newToken = await refreshSessionToken(refreshToken);
+                    if (newToken) {
+                        fetchUserDetails(newToken); // Retry fetching user details with the new token
+                    }
+                } else {
+                    console.error('Error fetching user details', error);
+                }
             } finally {
                 setIsLoading(false);
             }
         }
-    }, [userDetails]); // Re-run the memo only if userDetails changes
+    }, [userDetails, refreshToken]); // Re-run the memo only if userDetails or refreshToken changes
+
     
     useEffect(() => {
         fetchUserDetails(token);
@@ -135,7 +172,24 @@ const DescopeTest = () => {
                 ) : (
                     <>
                         {/* {renderUserDetails()} */}
-                        <div className='mt-4'>
+
+                        {
+                            hospitals?.length === 0 ? 
+
+
+                            <div className='mt-4'>
+                           
+
+                                    <div className="border border-gray-200 rounded-lg p-6 text-center shadow-lg bg-white grid grid-cols-2 gap-6 justify-between items-center mb-8">
+                                    <Typography className="text-md text-blue-600 mt-2">
+                        No Tenant Information found for the logged in user.
+                    </Typography>
+                                    </div>
+                        </div>
+
+                            :
+
+                            <div className='mt-4'>
                             {
                                 hospitals?.map((hospital, index) => (
 
@@ -161,6 +215,8 @@ const DescopeTest = () => {
                                 ))
                             }
                         </div>
+                        }
+                        
                     </>
                 )}
 
