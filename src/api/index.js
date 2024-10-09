@@ -85,7 +85,8 @@ export async function getTenantsDetails(tenantId, token) {
 
     const config = {
       headers: {
-        "Authorization": `Bearer ${token}`
+        "Authorization": `Bearer ${token}`,
+        'Accept': '*/*',
       },
     };
     

@@ -21,8 +21,6 @@ function SignIn() {
   const [isSuccess, setIsSuccess] = useState(false);
 
   
-
-
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({
@@ -84,7 +82,7 @@ function SignIn() {
       const email = formData.email; // Using email as tenant ID
       const tenant = formData.tenantId; // Using email as tenant ID
       
-
+      localStorage.clear();
       const data = await handleSSOLogin({
         email, tenant, redirectUrl : encodedRedirectUrl
       })
