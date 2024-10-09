@@ -76,9 +76,18 @@ export async function authenticateUserSession(token) {
 }
 
 
-export async function getTenantsDetails(tenantId) {
+export async function getTenantsDetails(tenantId, token) {
   try {
-    const response = await axios.get(`${API_BASE_URL}/data?tenantId=${tenantId}`)
+
+    const config = {
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': '*/*',
+        "Authorization": `Bearer ${token}`
+      },
+    };
+    
+    const response = await axios.get(`${API_BASE_URL}/auth/data?tenantId=${tenantId}`, config);
     console.log('response', response);
 
     if (response.status !== 200) {

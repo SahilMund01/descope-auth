@@ -106,7 +106,7 @@ const DescopeTest = () => {
                 const data = await authenticateUserSession(token);
                 setUserDetails(data.user);
                 const tenantid = data?.user?.userTenants[0]?.tenantId;
-                const tenantData = tenantid && await getTenantsDetails(tenantid);
+                const tenantData = tenantid && await getTenantsDetails(tenantid, token);
                 setHospitals(tenantData);
                 storeTokens(data.sessionJwt, data.refreshJwt);
             } catch (error) {
