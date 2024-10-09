@@ -91,13 +91,12 @@ export async function getTenantsDetails(tenantId, token) {
 
     const config = {
       headers: {
-        'Accept': '*/*',
         "Authorization": `Bearer ${sessionToken}`
       },
     };
     
-    const response = await axios.get(`${API_BASE_URL}/auth/data?tenantId=${tenantId}`, config);
-    // const response = await axios.get(`${API_BASE_URL}/data?tenantId=${tenantId}`);
+    // const response = await axios.get(`${API_BASE_URL}/auth/data?tenantId=${tenantId}`, config);
+    const response = await axios.get(`${API_BASE_URL}/data?tenantId=${tenantId}`);
     console.log(' getTenantsDetails response', response);
 
     if (response.status !== 200) {
