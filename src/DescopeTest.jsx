@@ -12,6 +12,7 @@ const DescopeTest = () => {
     const [token, setToken] = useState(localStorage.getItem('sessionJwt'));
     const [refreshToken, setRefreshToken] = useState(localStorage.getItem('refreshJwt'));
     const [code, setCode] = useState("");
+    const [tenantId,setTenantId] = useState(localStorage.getItem('__v__'));
     const [hospitals, setHospitals] = useState([]);
 
     const [searchParams] = useSearchParams();
@@ -76,21 +77,32 @@ const DescopeTest = () => {
 
 
     const fetchUserDetails = async () => {
-        
             setIsLoading(true);
             try {
-                
-                if(icode){
+                console.log(hospitals);
+                console.log(token);
+                console.log(tenantId);
+                if(icode && !token){
                     const data = await authenticateUserSession(icode);
                     setUserDetails(data.user);
                     console.log('session data fetched');
                     
-                    const tenantid = data?.user?.userTenants[0]?.tenantId;                
+                    const tenantid = data?.user?.userTenants[0]?.tenantId; 
+                    setTenantId(tenantId); 
+                    localStorage.setItem('__v__', data?.user?.userTenants[0]?.tenantId);              
                     const tenantData = tenantid && await getTenantsDetails(tenantid, data?.sessionJwt);
                     console.log('tenant data fetched');
     
                     setHospitals(tenantData);
                     storeTokens(data.sessionJwt, data.refreshJwt);
+                }
+                else if(hospitals?.length === 0 && token && tenantId){
+                          
+
+                    const tenantData = tenantId && await getTenantsDetails(tenantId, token);
+                    console.log('tenant data fetched');
+    
+                    setHospitals(tenantData);
                 }
                 
             } catch (error) {
@@ -101,27 +113,7 @@ const DescopeTest = () => {
         
     }; // Added `code` dependency
 
-    // const fetchUserDetails = useMemo(() => async (token) => {
-    //     if (!userDetails && token) {
-    //         setIsLoading(true);
-    //         try {
-    //             const data = await authenticateUserSession(code);
-    //             setUserDetails(data.user);
-    //             console.log('session data fetched');
-                
-    //             const tenantid = data?.user?.userTenants[0]?.tenantId;                
-    //             const tenantData = tenantid && await getTenantsDetails(tenantid, token);
-    //             console.log('tenant data fetched');
-
-    //             setHospitals(tenantData);
-    //             storeTokens(data.sessionJwt, data.refreshJwt);
-    //         } catch (error) {
-    //             console.error('Exchange error:', error);
-    //         } finally {
-    //             setIsLoading(false);
-    //         }
-    //     }
-    // }, [userDetails]); 
+    
 
     // const fetchUserDetails = useMemo(() => async (token) => {
     //     if (!userDetails && token) {
@@ -158,10 +150,10 @@ const DescopeTest = () => {
     // }, [searchParams]);
 
     useEffect(() => {
-       
+
             fetchUserDetails(token);
         
-    }, []);
+    }, [token]);
 
 
 
@@ -193,7 +185,7 @@ const DescopeTest = () => {
             <div className='w-[90%] m-auto mt-6'>
                 <div className="bg-blue-100 border border-blue-300 rounded-md p-4 my-4">
                     <Typography className="text-lg font-bold text-blue-700">
-                        Welcome <strong>{userDetails?.name}</strong>, you have successfully logged into your account!
+                        Welcome !! you have successfully logged into your account!
                     </Typography>
                     <Typography className="text-md text-blue-600 mt-2">
                         {/* Please find the below list of hospitals handled by you. */}
