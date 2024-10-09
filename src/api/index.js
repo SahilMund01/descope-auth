@@ -1,6 +1,7 @@
 import axios from "axios";
 
-const API_BASE_URL = "https://proj-qsight.techo.camp/api";
+// const API_BASE_URL = "https://proj-qsight.techo.camp/api";
+const API_BASE_URL = "https://dns-ssl.online/api";
 
 const axiosConfig = {
   headers: {
@@ -82,9 +83,10 @@ export async function authenticateUserSession(token) {
 export async function getTenantsDetails(tenantId, token) {
   try {
 
+    console.log(token)
+
     const config = {
       headers: {
-        'Content-Type': 'application/json',
         'Accept': '*/*',
         "Authorization": `Bearer ${token}`
       },
@@ -92,7 +94,7 @@ export async function getTenantsDetails(tenantId, token) {
     
     // const response = await axios.get(`${API_BASE_URL}/auth/data?tenantId=${tenantId}`, config);
     const response = await axios.get(`${API_BASE_URL}/data?tenantId=${tenantId}`);
-    console.log('response', response);
+    console.log(' getTenantsDetails response', response);
 
     if (response.status !== 200) {
       throw new Error(`Exchange failed (${response.status})`);

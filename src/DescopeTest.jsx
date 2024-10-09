@@ -2,8 +2,6 @@ import React, { useEffect, useMemo, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import Header from './Header';
 import { Typography, Card, CardContent, CircularProgress } from '@mui/material';
-import { jwtDecode } from 'jwt-decode';
-import { Hospital } from 'lucide-react';
 import { authenticateUserSession, getTenantsDetails } from './api';
 import axios from 'axios';
 
@@ -13,10 +11,13 @@ const DescopeTest = () => {
     const [isLoading, setIsLoading] = useState(false);
     const [token, setToken] = useState(localStorage.getItem('sessionJwt'));
     const [refreshToken, setRefreshToken] = useState(localStorage.getItem('refreshJwt'));
+    const [code, setCode] = useState("");
     const [hospitals, setHospitals] = useState([]);
 
     const [searchParams] = useSearchParams();
-    const code = searchParams.get('code');
+
+    const icode = searchParams.get('code');
+
     const navigate = useNavigate();
 
     // Store token and refresh token in localStorage
@@ -73,62 +74,68 @@ const DescopeTest = () => {
     };
 
 
-    // Set the token when the component mounts
-    useEffect(() => {
-        if (code) {
-            setToken(code);
-        }
-    }, [code]);
-
-
-    // const fetchUserDetails = useMemo(() => async (token) => {
-    //     if (!userDetails) {
-    //         setIsLoading(true);
-    //         try {
-    //             const data = await authenticateUserSession(token);
-    //             setUserDetails(data.user);
-    //             const tenantid = data?.user?.userTenants[0]?.tenantId;                
-    //             const tenenatData = tenantid && await getTenantsDetails(tenantid);
-    //             setHospitals(tenenatData);
-    //             storeTokens(data.sessionJwt, data.refreshJwt);
-    //         } catch (error) {
-    //             console.error('Exchange error:', error);
-    //         } finally {
-    //             setIsLoading(false);
-    //         }
-    //     }
-    // }, [userDetails]); // Re-run the memo only if userDetails changes
 
     const fetchUserDetails = useMemo(() => async (token) => {
-        if (!userDetails) {
+        if (!userDetails && token) {
             setIsLoading(true);
             try {
-                const data = await authenticateUserSession(token);
+                const data = await authenticateUserSession(code);
                 setUserDetails(data.user);
-                const tenantid = data?.user?.userTenants[0]?.tenantId;
+                console.log('session data fetched');
+                
+                const tenantid = data?.user?.userTenants[0]?.tenantId;                
                 const tenantData = tenantid && await getTenantsDetails(tenantid, token);
+                console.log('tenant data fetched');
+
                 setHospitals(tenantData);
                 storeTokens(data.sessionJwt, data.refreshJwt);
             } catch (error) {
-                if (error.response?.status === 401 && refreshToken) {
-                    // Token expired, attempt to refresh it
-                    const newToken = await refreshSessionToken(refreshToken);
-                    if (newToken) {
-                        fetchUserDetails(newToken); // Retry fetching user details with the new token
-                    }
-                } else {
-                    console.error('Error fetching user details', error);
-                }
+                console.error('Exchange error:', error);
             } finally {
                 setIsLoading(false);
             }
         }
-    }, [userDetails, refreshToken]); // Re-run the memo only if userDetails or refreshToken changes
+    }, [userDetails, code]); // Added `code` dependency
 
-    
+    // const fetchUserDetails = useMemo(() => async (token) => {
+    //     if (!userDetails && token) {
+    //         setIsLoading(true);
+    //         try {
+    //             const data = await authenticateUserSession(token);
+    //             console.log('data', data)
+    //             setUserDetails(data.user);
+    //             const tenantid = data?.user?.userTenants[0]?.tenantId;
+    //             const tenantData = tenantid && await getTenantsDetails(tenantid, token);
+    //             setHospitals(tenantData);
+    //             storeTokens(data.sessionJwt, data.refreshJwt);
+    //         } catch (error) {
+    //             if (error.response?.status === 401 && refreshToken) {
+    //                 // Token expired, attempt to refresh it
+    //                 const newToken = await refreshSessionToken(refreshToken);
+    //                 if (newToken) {
+    //                     fetchUserDetails(newToken); // Retry fetching user details with the new token
+    //                 }
+    //             } else {
+    //                 console.error('Error fetching user details', error);
+    //             }
+    //         } finally {
+    //             setIsLoading(false);
+    //         }
+    //     }
+    // }, [userDetails, refreshToken]); // Re-run the memo only if userDetails or refreshToken changes
+
     useEffect(() => {
-        fetchUserDetails(token);
-    }, [token]);
+        const icode = searchParams.get('code');
+        if (icode) {
+            setCode(icode);
+        }
+    }, [searchParams]);
+
+    useEffect(() => {
+        if (token) {
+            fetchUserDetails(token);
+        }
+    }, [token, fetchUserDetails]);
 
 
 
