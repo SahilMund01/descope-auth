@@ -1,7 +1,7 @@
 import axios from "axios";
 
 // const API_BASE_URL = "https://proj-qsight.techo.camp/api";
-const API_BASE_URL = "https://proj-qsight.techo.camp/";
+const API_BASE_URL = "https://proj-qsight.techo.camp";
 
 const axiosConfig = {
   headers: {
