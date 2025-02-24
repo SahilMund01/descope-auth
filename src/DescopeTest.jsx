@@ -1,9 +1,8 @@
-import React, { useEffect, useMemo, useState } from 'react'
+import  { useEffect, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import Header from './Header';
 import { Typography, Card, CardContent, CircularProgress } from '@mui/material';
 import { authenticateUserSession, getTenantsDetails } from './api';
-import axios from 'axios';
 
 const DescopeTest = () => {
 
@@ -11,13 +10,14 @@ const DescopeTest = () => {
     const [isLoading, setIsLoading] = useState(false);
     const [token, setToken] = useState(localStorage.getItem('sessionJwt'));
     const [refreshToken, setRefreshToken] = useState(localStorage.getItem('refreshJwt'));
-    const [code, setCode] = useState("");
+    // const [code, setCode] = useState("");
     const [tenantId,setTenantId] = useState(localStorage.getItem('__v__'));
     const [hospitals, setHospitals] = useState([]);
 
     const [searchParams] = useSearchParams();
 
     const icode = searchParams.get('code');
+    console.log('icode', {icode, refreshToken})
 
     const navigate = useNavigate();
 
@@ -43,9 +43,9 @@ const DescopeTest = () => {
         }
     };
 
-    const handleChange = (event) => {
-        //   setAuth(event.target.checked);
-    };
+    // const handleChange = (event) => {
+    //     //   setAuth(event.target.checked);
+    // };
 
     const handleMenu = (event) => {
         setAnchorEl(event.currentTarget);
@@ -60,19 +60,19 @@ const DescopeTest = () => {
         setAnchorEl(null);
     };
 
-    const refreshSessionToken = async (refreshJwt) => {
-        try {
-            const response = await axios.post('https://proj-qsight.techo.camp/api/auth/session/refresh', {
-                refreshToken: refreshJwt,
-            });
-            const { sessionJwt, refreshJwt: newRefreshJwt } = response.data;
-            storeTokens(sessionJwt, newRefreshJwt);
-            return sessionJwt;
-        } catch (error) {
-            console.error('Error refreshing session token', error);
-            onLogout(); // Log the user out if the refresh token fails
-        }
-    };
+    // const refreshSessionToken = async (refreshJwt) => {
+    //     try {
+    //         const response = await axios.post('https://proj-qsight.techo.camp/api/auth/session/refresh', {
+    //             refreshToken: refreshJwt,
+    //         });
+    //         const { sessionJwt, refreshJwt: newRefreshJwt } = response.data;
+    //         storeTokens(sessionJwt, newRefreshJwt);
+    //         return sessionJwt;
+    //     } catch (error) {
+    //         console.error('Error refreshing session token', error);
+    //         onLogout(); // Log the user out if the refresh token fails
+    //     }
+    // };
 
 
 
@@ -85,13 +85,13 @@ const DescopeTest = () => {
                 if(icode && !token){
                     const data = await authenticateUserSession(icode);
                     setUserDetails(data.user);
-                    console.log('session data fetched');
+                    console.log('session data fetched', data);
                     
                     const tenantid = data?.user?.userTenants[0]?.tenantId; 
                     setTenantId(tenantId); 
                     localStorage.setItem('__v__', data?.user?.userTenants[0]?.tenantId);              
                     const tenantData = tenantid && await getTenantsDetails(tenantid, data?.sessionJwt);
-                    console.log('tenant data fetched');
+                    console.log('tenant data fetched', tenantData);
     
                     setHospitals(tenantData);
                     storeTokens(data.sessionJwt, data.refreshJwt);
@@ -100,7 +100,7 @@ const DescopeTest = () => {
                           
 
                     const tenantData = tenantId && await getTenantsDetails(tenantId, token);
-                    console.log('tenant data fetched');
+                    console.log('tenant data fetched', tenantData);
     
                     setHospitals(tenantData);
                 }
@@ -178,6 +178,17 @@ const DescopeTest = () => {
         );
     };
 
+    if(!hospitals){
+        return (
+            <Card style={{ marginTop: '20px', padding: '10px' }}>
+                <CardContent>
+                    <Typography variant="h5" className='pb-4'>Some Error occured</Typography>
+
+                </CardContent>
+                </Card>
+        );
+    }
+
     return (
         <div>
             <Header handleClose={handleClose} handleMenu={handleMenu} anchorEl={anchorEl} />
@@ -199,7 +210,7 @@ const DescopeTest = () => {
                         {/* {renderUserDetails()} */}
 
                         {
-                            hospitals?.length === 0 ? 
+                            hospitals && hospitals?.length === 0 ? 
 
 
                             <div className='mt-4'>
@@ -216,7 +227,7 @@ const DescopeTest = () => {
 
                             <div className='mt-4'>
                             {
-                                hospitals?.map((hospital, index) => (
+                               hospitals && hospitals?.map((hospital, index) => (
 
                                     <div className="border border-gray-200 rounded-lg p-6 text-center shadow-lg bg-white grid grid-cols-2 gap-6 justify-between items-center mb-8" key={index}>
                                         <h3 className="text-xl font-semibold text-gray-800">{hospital?.hospitalName}</h3>

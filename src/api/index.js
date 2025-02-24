@@ -1,7 +1,7 @@
 import axios from "axios";
 
+const API_BASE_URL = "https://dev.qsight.health/api";
 // const API_BASE_URL = "https://proj-qsight.techo.camp/api";
-const API_BASE_URL = "https://proj-qsight.techo.camp/api";
 
 const axiosConfig = {
   headers: {
@@ -9,8 +9,6 @@ const axiosConfig = {
     'Accept': '*/*',
   },
 };
-
-
 
 export async function handleSSOLogin(data) {
   const {email, tenant, redirectUrl} = data;
@@ -80,17 +78,18 @@ export async function authenticateUserSession(token) {
 }
 
 
-export async function getTenantsDetails(tenantId, token) {
+export async function getTenantsDetails(tenantId) {
   try {
 
     const config = {
       headers: {
-        "Authorization": `Bearer ${token}`,
+        // "Authorization": `Bearer ${token}`,
         'Accept': '*/*',
+        'ngrok-skip-browser-warning': true, // TODO: remove this in case ngrok api is not used
       },
     };
     
-    const response = await axios.get(`${API_BASE_URL}/auth/data?tenantId=${tenantId}`, config);
+    const response = await axios.get(`${API_BASE_URL}/data?tenantId=${tenantId}`, config);
     // const response = await axios.get(`${API_BASE_URL}/data?tenantId=${tenantId}`);
     console.log(' getTenantsDetails response', response);
 

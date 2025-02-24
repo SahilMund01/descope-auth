@@ -1,24 +1,19 @@
-import { useState, useEffect } from 'react';
 import './App.css';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import SignIn from './SignIn';
 import DescopeTest from './DescopeTest';
+import Admin from './Admin';
 
-
-const getInitialTheme = () => {
-  if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-    return 'dark';
-  }
-  return 'light';
-};
 
 function App() {  
   return (
     <div>
       <BrowserRouter>
       <Routes>
-      <Route path="/" element={<SignIn/>} />
+      <Route path="/" element={<Admin/>} />
       <Route path="/descope-test" element={<DescopeTest />} />
+      {/* <Route path="/descope-test" element={<DescopeTest />} /> */}
+      <Route path="/admin" element={<SignIn />} />
       {/* <Route
         path="/users/:id"
         render={({ match }) => (

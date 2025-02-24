@@ -3,12 +3,12 @@ import { useEffect, useState } from 'react'
 import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye';
 import EditIcon from '@mui/icons-material/Edit';
 import CloseIcon from '@mui/icons-material/Close';
-import { fetchAndProcessAdminData } from './api';
+// import { fetchAndProcessAdminData } from './api';
 
 const Admin = ({ data, email , onSetUser, isAdmin}) => {
 
   // const BASE_URL = "https://9848-139-167-129-22.ngrok-free.app";
-  const BASE_URL = "https://dns-ssl.online";
+  const BASE_URL = "https://dev.qsight.health";
 
   const [open, setOpen] = useState(false);
   const [hospitals, setHospitals] = useState([]);
@@ -21,14 +21,14 @@ const Admin = ({ data, email , onSetUser, isAdmin}) => {
   const [snackbarMessage, setSnackbarMessage] = useState('');
   const [snackbarSeverity, setSnackbarSeverity] = useState("");
 
-  useEffect(() => {
-    fetchData();
-  }, []);
+  // useEffect(() => {
+  //   fetchData();
+  // }, []);
 
-  const fetchData = async () => {
-    const adminData = await fetchAndProcessAdminData();
-    setHospitals(adminData);
-  };
+  // const fetchData = async () => {
+  //   const adminData = await fetchAndProcessAdminData();
+  //   setHospitals(adminData);
+  // };
 
   const handleOpen = (hospital = null, isNew = false) => {
     setSelectedHospital(hospital || {});
@@ -53,7 +53,7 @@ const Admin = ({ data, email , onSetUser, isAdmin}) => {
   const createHospitals = async (selectedHospital) => {
     setLoading(true);
     try {
-      const response = await fetch(`${BASE_URL}/api/tenant/create`, {
+      const response = await fetch(`${BASE_URL}/api/customer`, {
         method: "POST",
         headers: new Headers({
           "Content-Type": "application/json",
@@ -94,8 +94,8 @@ const Admin = ({ data, email , onSetUser, isAdmin}) => {
   };
 
   const validateFields = () => {
-    const requiredFields = ['hospitalName', 'hospitalDesc', 'adminName', 'adminEmail'];
-    if (!isNew) requiredFields.push('tenantId');
+    const requiredFields = ['customerName', 'customerDesc', 'adminName', 'adminEmail'];
+    if (!isNew) requiredFields.push('domainName');
     return requiredFields.every(field => selectedHospital[field]);
   };
 
@@ -108,6 +108,9 @@ const Admin = ({ data, email , onSetUser, isAdmin}) => {
     }
 
     setLoading(true);
+
+    console.log('selectedHospital', selectedHospital)
+
 
     try {
       if (isNew) {
@@ -150,12 +153,12 @@ const Admin = ({ data, email , onSetUser, isAdmin}) => {
   return (
     <div className='w-[90%] m-auto mt-6'>
       <div className="bg-blue-100 border border-blue-300 rounded-md p-4 my-4">
-        <Typography className="text-lg font-bold text-blue-700">
+        {/* <Typography className="text-lg font-bold text-blue-700">
           Welcome <strong>{email}</strong>, you have successfully logged into your admin account!
         </Typography>
         <Typography className="text-md text-blue-600 mt-2">
           Please find the below list of hospitals handled by you.
-        </Typography>
+        </Typography> */}
       </div>
 
 
@@ -165,7 +168,7 @@ const Admin = ({ data, email , onSetUser, isAdmin}) => {
           component="h1"
           className="font-medium text-[23px] bg-gradient-to-r from-[#002856] to-[#385390] py-4 bg-clip-text text-transparent font-roboto"
         >
-          Hospitals ({hospitals?.length})
+          Customers ({hospitals?.length})
         </Typography>
 
 
@@ -180,8 +183,8 @@ const Admin = ({ data, email , onSetUser, isAdmin}) => {
           <TableHead>
             <TableRow>
               <TableCell><strong>S.N</strong></TableCell>
-              <TableCell align="center" > <strong>Hospital Name</strong></TableCell>
-              <TableCell align="center" > <strong>Hospital Desc</strong></TableCell>
+              <TableCell align="center" > <strong>Customer Name</strong></TableCell>
+              <TableCell align="center" > <strong>Customer Desc</strong></TableCell>
               <TableCell align="center"><strong>Status</strong></TableCell>
               <TableCell align="right"><strong>Action</strong></TableCell>
 
@@ -195,10 +198,10 @@ const Admin = ({ data, email , onSetUser, isAdmin}) => {
                 <TableCell component="th">{row.srNo}</TableCell>
 
                 <TableCell component="th" align="center" scope="row">
-                  {row.hospitalName}
+                  {row.customerName}
                 </TableCell>
                 <TableCell component="th" align="center" scope="row">
-                  {row.hospitalDesc}
+                  {row.customerDesc}
                 </TableCell>
                 <TableCell component="th" align="center" scope="row">
                   <Chip label={row.status || "Onboard Complete"} color="success" variant="outlined" />
@@ -225,7 +228,7 @@ const Admin = ({ data, email , onSetUser, isAdmin}) => {
         disableEscapeKeyDown
       >
         <DialogTitle id="dialog-title">
-          <Typography variant="h6">{isNew ? 'Add New Hospital' : 'Hospital Details'}</Typography>
+          <Typography variant="h6">{isNew ? 'Add New Customer' : 'Customer Details'}</Typography>
           {!isNew && (
             // <IconButton
             //   edge="end"
@@ -250,18 +253,18 @@ const Admin = ({ data, email , onSetUser, isAdmin}) => {
         </DialogTitle>
         <DialogContent>
           <TextField
-            label="hospital Name"
-            name="hospitalName"
-            value={selectedHospital?.hospitalName || ''}
+            label="Customer Name"
+            name="customerName"
+            value={selectedHospital?.customerName || ''}
             onChange={handleChange}
             disabled={!editMode}
             fullWidth
             margin="normal"
           />
           <TextField
-            label="Hospital Description"
-            name="hospitalDesc"
-            value={selectedHospital?.hospitalDesc || ''}
+            label="Customer Description"
+            name="customerDesc"
+            value={selectedHospital?.customerDesc || ''}
             onChange={handleChange}
             disabled={!editMode}
             fullWidth
@@ -296,15 +299,16 @@ const Admin = ({ data, email , onSetUser, isAdmin}) => {
             fullWidth
             margin="normal"
           />
-          {!isNew && <TextField
-            label="Tenant ID"
-            name="tenantId"
-            value={selectedHospital?.tenantId || ''}
+          
+           <TextField
+            label="Domain Name"
+            name="domainName"
+            value={selectedHospital?.domainName || ''}
             onChange={handleChange}
             disabled={!editMode}
             fullWidth
             margin="normal"
-          />}
+          />
         </DialogContent>
         <DialogActions sx={{ marginRight: '15px', marginBottom: '20px' }}>
           {editMode && (
